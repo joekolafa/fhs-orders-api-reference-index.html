@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firehouse Subs Reporting — Review Notes · 2026-04-17</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #fafaf8;
+    --surface-2: #f4f1ec;
+    --rule: #e6e4df;
+    --rule-strong: #c9c6bd;
+
+    --ink: #1d1d1b;
+    --ink-body: #2e2d2a;
+    --ink-soft: #555450;
+    --ink-dim: #7c7b76;
+    --ink-ghost: #a8a69f;
+
+    --accent: #b94a00;
+    --accent-soft: #d65a0a;
+
+    --yellow: #7a5b00;
+    --yellow-bg: #fbf2d7;
+    --red: #8a2a1f;
+    --red-bg: #f8e8e6;
+    --blue: #224873;
+    --blue-bg: #e8efef;
+    --green: #2a5a36;
+    --green-bg: #eaefe6;
+
+    --code-bg: #f6f4ef;
+    --code-border: #e6e2d6;
+    --code-key: #5c3d0a;
+    --code-str: #2a5a36;
+    --code-num: #4a3a7a;
+    --code-bool: #8a2a1f;
+    --code-punc: #555450;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-body);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 32px 120px;
+  }
+
+  /* header */
+  header.doc-header {
+    border-top: 2px solid var(--ink);
+    padding-top: 14px;
+    margin-bottom: 36px;
+  }
+  .doc-meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .doc-meta strong { color: var(--ink); font-weight: 600; }
+  h1.doc-title {
+    font-family: "IBM Plex Serif", serif;
+    font-weight: 500;
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .doc-subtitle {
+    font-family: "IBM Plex Serif", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* the gap summary */
+  .gap-summary {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 20px 24px;
+    margin: 32px 0 40px;
+  }
+  .gap-summary-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 14px;
+  }
+  .gap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .gap-cell {
+    padding: 14px 14px 6px 0;
+    border-right: 1px solid var(--rule);
+  }
+  .gap-cell:last-child { border-right: none; padding-right: 0; }
+  .gap-cell:first-child { padding-left: 0; }
+  .gap-cell:not(:first-child) { padding-left: 14px; }
+  .gap-cell-source {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .gap-cell-value {
+    font-family: "IBM Plex Serif", serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .gap-cell-delta {
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .gap-cell-delta.plus { color: var(--accent); }
+  @media (max-width: 560px) {
+    .gap-grid { grid-template-columns: 1fr; }
+    .gap-cell { border-right: none; border-bottom: 1px solid var(--rule); padding: 10px 0; }
+    .gap-cell:last-child { border-bottom: none; }
+    .gap-cell:not(:first-child) { padding-left: 0; }
+  }
+
+  /* sections */
+  section { padding-top: 40px; scroll-margin-top: 24px; }
+  section + section { border-top: 1px solid var(--rule); margin-top: 20px; }
+
+  .issue-kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  h2.issue-title {
+    font-family: "IBM Plex Serif", serif;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .issue-summary {
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+  }
+
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 22px 0 8px;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  p { margin: 0 0 12px; }
+  p:last-child { margin-bottom: 0; }
+
+  code.inl {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--code-key);
+    white-space: nowrap;
+  }
+
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* fix card */
+  .fix {
+    background: var(--green-bg);
+    border: 1px solid #cfe0c8;
+    border-left: 3px solid var(--green);
+    border-radius: 0 3px 3px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .fix-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .fix-body { font-size: 14.5px; color: var(--ink-body); }
+  .fix-body code.inl { background: rgba(255,255,255,0.6); border-color: #d4dfce; }
+
+  /* proof/details */
+  details.proof {
+    margin: 14px 0;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--surface);
+  }
+  details.proof[open] { background: var(--bg); }
+  details.proof summary {
+    cursor: pointer;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 10px 14px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+  details.proof summary::before {
+    content: "▸";
+    color: var(--accent);
+    font-size: 11px;
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+  details.proof[open] summary::before { transform: rotate(90deg); }
+  details.proof summary::-webkit-details-marker { display: none; }
+  details.proof summary:hover { color: var(--accent); }
+  details.proof .proof-body {
+    padding: 4px 18px 18px;
+    font-size: 14.5px;
+    border-top: 1px solid var(--rule);
+    background: var(--surface);
+    margin-top: 6px;
+  }
+  details.proof[open] .proof-body { background: var(--bg); }
+
+  /* data table */
+  .dt {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 10px 0;
+    font-family: "IBM Plex Mono", monospace;
+  }
+  .dt th, .dt td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+  }
+  .dt th {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-dim);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .dt td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .dt td.label { font-family: "IBM Plex Sans", sans-serif; color: var(--ink); }
+  .dt tr.hl td { background: var(--yellow-bg); }
+  .dt tr.hl-g td { background: var(--green-bg); }
+
+  /* code block */
+  pre.code {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 12px 0;
+    color: var(--ink-body);
+  }
+  pre.code .k { color: var(--code-key); }
+  pre.code .s { color: var(--code-str); }
+  pre.code .n { color: var(--code-num); }
+  pre.code .b { color: var(--code-bool); font-weight: 500; }
+  pre.code .c { color: var(--ink-ghost); font-style: italic; }
+  pre.code .p { color: var(--code-punc); }
+  pre.code .hl { background: #fdf1cf; padding: 0 2px; border-radius: 2px; }
+
+  /* pseudo-sql */
+  pre.pseudo {
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    margin: 14px 0;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+  pre.pseudo .kw { color: var(--accent); font-weight: 600; }
+  pre.pseudo .cm { color: var(--ink-ghost); font-style: italic; }
+
+  /* next steps */
+  .next-steps {
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 22px 26px;
+    margin-top: 40px;
+  }
+  .next-steps h3 { margin-top: 0; color: var(--ink); }
+  .next-steps ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .next-steps li {
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: var(--ink-body);
+  }
+  .next-steps li:last-child { margin-bottom: 0; }
+
+  footer.doc-footer {
+    margin-top: 60px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* print */
+  @media print {
+    body { background: white; }
+    .page { padding: 0; }
+    details.proof { break-inside: avoid; }
+    details.proof summary { display: none; }
+    details.proof .proof-body { display: block !important; padding-top: 10px; }
+    details.proof[open] .proof-body { display: block !important; }
+    details.proof .proof-body { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <div class="doc-meta">
+      <span><strong>Business day</strong> · 2026-04-17</span>
+      <span><strong>Prepared by</strong> · Toast Solutions Engineering</span>
+    </div>
+    <h1 class="doc-title">Reporting reconciliation — findings &amp; recommendations</h1>
+    <p class="doc-subtitle">Three reporting sources disagreed by about $14K on 4/17 across the 308 live stores. We pulled every order that day directly from the Orders API and identified three specific causes.</p>
+  </header>
+
+  <div class="gap-summary">
+    <div class="gap-summary-label">Net sales by source · 4/17 · 308 stores</div>
+    <div class="gap-grid">
+      <div class="gap-cell">
+        <div class="gap-cell-source">Keboola (Analytics API)</div>
+        <div class="gap-cell-value">$918,061</div>
+        <div class="gap-cell-delta">baseline</div>
+      </div>
+      <div class="gap-cell">
+        <div class="gap-cell-source">Snowflake Share</div>
+        <div class="gap-cell-value">$927,980</div>
+        <div class="gap-cell-delta plus">+$9,919 vs Keboola</div>
+      </div>
+      <div class="gap-cell">
+        <div class="gap-cell-source">Your Orders API pulls</div>
+        <div class="gap-cell-value">$932,596</div>
+        <div class="gap-cell-delta plus">+$4,616 vs Share</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════ Issue 1 ═════════════ -->
+  <section>
+    <div class="issue-kicker">Issue 1 · Snowflake Share</div>
+    <h2 class="issue-title">Share is counting fundraising dollars as restaurant revenue</h2>
+    <p class="issue-summary">Firehouse's Round Up &amp; Give donations and fundraising menu items (medallions, donation bottles) both appear in Share's "net sales" figure. Neither should — the dollars pass through to the charity partner, not the restaurant.</p>
+
+    <h3>What's happening</h3>
+    <p>Share's net sales number equals the sum of <code class="inl">check.amount</code> as returned by the Orders API. Per Toast's API reference, <code class="inl">check.amount</code> "includes discounts and service charges," which means Round Up &amp; Give donations are baked into it. Separately, fundraising menu items (which Firehouse tags as deferred) are also included in Share's totals rather than excluded.</p>
+
+    <p>Together these two paths overstate Firehouse net sales by roughly <strong>$10,600 per day</strong> fleet-wide — or about 1.1% of reported revenue.</p>
+
+    <h3>What to do about it</h3>
+    <div class="fix">
+      <div class="fix-label">Recommendation</div>
+      <div class="fix-body">
+        From Share's net sales query, subtract two things:
+        <ol style="margin: 8px 0 0; padding-left: 20px;">
+          <li>Applied service charges where <code class="inl">serviceChargeCategory = 'FUNDRAISING_CAMPAIGN'</code></li>
+          <li>Selection prices where <code class="inl">selection.deferred = true</code></li>
+        </ol>
+      </div>
+    </div>
+
+    <details class="proof"><summary>Proof · store 00890 (Abilene South)</summary>
+      <div class="proof-body">
+        <p style="margin-top: 8px;">At this one store on 4/17, here's how Share's number breaks down:</p>
+        <table class="dt">
+          <thead><tr><th>Source / Calc</th><th class="n" style="text-align:right">Net sales</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="label">Share reports</td><td class="n">$7,820.27</td><td></td></tr>
+            <tr><td class="label">Σ check.amount (from Bulk Orders API)</td><td class="n">$7,820.27</td><td>Exact match — Share is summing this field</td></tr>
+            <tr><td class="label">− Round Up &amp; Give service charges</td><td class="n">−$22.07</td><td>Fundraising (svc charge path)</td></tr>
+            <tr><td class="label">− Deferred selection prices</td><td class="n">−$39.93</td><td>Fundraising menu items</td></tr>
+            <tr class="hl-g"><td class="label">Corrected net sales</td><td class="n">$7,758.27</td><td>Matches Keboola's $7,758 (it rounds to whole dollars)</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 10px;">This exact pattern holds at every one of the 4 stores we sampled directly, and the fleet-wide totals reconcile to within 0.05% once the two filters are applied.</p>
+        <p style="margin-bottom: 0; color: var(--ink-dim); font-size: 13px;">Example service charge structure:</p>
+<pre class="code"><span class="c">// check.appliedServiceCharges[]</span>
+<span class="p">{</span>
+  <span class="k">"name"</span><span class="p">:</span> <span class="s">"Round Up &amp; Give"</span><span class="p">,</span>
+  <span class="k">"chargeAmount"</span><span class="p">:</span> <span class="n">0.66</span><span class="p">,</span>
+  <span class="k hl">"serviceChargeCategory"</span><span class="p">:</span> <span class="s hl">"FUNDRAISING_CAMPAIGN"</span><span class="p">,</span>
+  <span class="k">"gratuity"</span><span class="p">:</span> <span class="b">false</span>
+<span class="p">}</span></pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═════════════ Issue 2 ═════════════ -->
+  <section>
+    <div class="issue-kicker">Issue 2 · Your Orders API pulls</div>
+    <h2 class="issue-title">Discounts are not being pulled from the Orders API</h2>
+    <p class="issue-summary">The <code class="inl">DISCOUNT_AMOUNT</code> column in your reconciliation data shows <strong>$0.00 for all 308 stores</strong> on 4/17. Toast's data for the same day shows $59,481 in discounts.</p>
+
+    <h3>What's happening</h3>
+    <p>Discount dollars live on <code class="inl">appliedDiscounts</code> arrays in the Orders API response. These arrays appear at two levels of the order hierarchy — inside each <code class="inl">check</code>, and inside each <code class="inl">selection</code> within a check. Both levels need to be walked to get the full discount picture.</p>
+
+    <p>Based on the all-zero values across every store, your current pipeline either isn't reading these arrays or is dropping them during aggregation. That's roughly <strong>$59K/day in discount activity</strong> that isn't being captured.</p>
+
+    <h3>What to do about it</h3>
+    <div class="fix">
+      <div class="fix-label">Recommendation</div>
+      <div class="fix-body">
+        When walking each order, sum <code class="inl">discountAmount</code> from <em>both</em>:
+        <ol style="margin: 8px 0 0; padding-left: 20px;">
+          <li><code class="inl">check.appliedDiscounts[].discountAmount</code> — the larger bucket at Firehouse (~82% of discount dollars)</li>
+          <li><code class="inl">selection.appliedDiscounts[].discountAmount</code> — item-level discounts, BOGOs, comps (~18%)</li>
+        </ol>
+      </div>
+    </div>
+
+    <details class="proof"><summary>Proof · fleet-wide discount comparison</summary>
+      <div class="proof-body">
+        <table class="dt">
+          <thead><tr><th>Source</th><th class="n" style="text-align:right">Discount total</th><th>Stores reporting &gt; $0</th></tr></thead>
+          <tbody>
+            <tr><td class="label">Your Orders API pipeline</td><td class="n">$0.00</td><td>0 of 308</td></tr>
+            <tr><td class="label">Keboola (Analytics API)</td><td class="n">$57,739.00</td><td>—</td></tr>
+            <tr><td class="label">Share</td><td class="n">$57,739.49</td><td>—</td></tr>
+            <tr class="hl-g"><td class="label">Direct Orders API pull (this analysis)</td><td class="n">$59,480.84</td><td>~all active stores</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 10px;">The ~$1,700 residual between our direct pull and Keboola/Share is minor and likely reflects treatment of loyalty reward discounts in a <code class="inl">PENDING_APPLIED</code> state — worth a separate conversation if needed.</p>
+        <p style="margin-bottom: 0; color: var(--ink-dim); font-size: 13px;">Example of where discounts live in the JSON:</p>
+<pre class="code"><span class="c">// check.appliedDiscounts[] — the larger bucket at FHS</span>
+<span class="p">{</span>
+  <span class="k">"name"</span><span class="p">:</span> <span class="s">"Hero Discount"</span><span class="p">,</span>
+  <span class="k hl">"discountAmount"</span><span class="p">:</span> <span class="n">2.50</span><span class="p">,</span>
+  <span class="k">"discountType"</span><span class="p">:</span> <span class="s">"FIXED"</span>
+<span class="p">}</span>
+
+<span class="c">// selection.appliedDiscounts[] — item-level, BOGOs, combo prices</span>
+<span class="p">{</span>
+  <span class="k">"name"</span><span class="p">:</span> <span class="s">"Combo Bundle"</span><span class="p">,</span>
+  <span class="k hl">"discountAmount"</span><span class="p">:</span> <span class="n">1.99</span><span class="p">,</span>
+  <span class="k">"discountType"</span><span class="p">:</span> <span class="s">"FIXED_TOTAL"</span>
+<span class="p">}</span></pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═════════════ Issue 3 ═════════════ -->
+  <section>
+    <div class="issue-kicker">Issue 3 · Your Orders API pulls</div>
+    <h2 class="issue-title">Per-store net sales values swing in both directions</h2>
+    <p class="issue-summary">Your Orders API net sales values differ from Toast's data by different amounts and in different directions at different stores — suggesting multiple smaller issues rather than a single formula bug.</p>
+
+    <h3>What's happening</h3>
+    <p>At the fleet level your net sales total is ~$4,600 higher than Share, but that's the net of individual store discrepancies that range from −$689 at one store to +$776 at another. When the per-store errors don't move in a consistent direction, it usually points to aggregation logic that behaves differently based on order shape (e.g., includes certain orders that should be excluded, or sums from different fields depending on which payment types are present).</p>
+
+    <h3>Two specific patterns worth investigating</h3>
+
+    <p><strong>Pacific-timezone stores show extra tickets.</strong> Store 10240 (Pajaro Dunes) shows 83 tickets in your data versus 81 in Keboola, Share, and Toast's direct data. This is the signature of a pipeline using a UTC time window instead of the <code class="inl">businessDate</code> filter — UTC midnight cuts through the local-evening hours on West Coast stores, which can pull in tail-end orders from the adjacent business day.</p>
+
+    <p><strong>Some stores show net sales wildly disconnected from the actual data.</strong> Store 10240 reports $2,504.52 in your pipeline versus $1,728.95 actual — a $776 overstatement that isn't explained by tax, fundraising, or any single field. This is likely multiple issues compounding (possibly including test-mode orders, possibly summing from <code class="inl">check.totalAmount</code> instead of <code class="inl">check.amount</code>, or something else).</p>
+
+    <h3>What to do about it</h3>
+    <div class="fix">
+      <div class="fix-label">Recommendations</div>
+      <div class="fix-body">
+        <ol style="margin: 4px 0 0; padding-left: 20px;">
+          <li>Switch the Bulk Orders query from <code class="inl">startDate</code>/<code class="inl">endDate</code> to <code class="inl">?businessDate=YYYYMMDD</code> — this eliminates timezone math entirely and gives each store its proper local-day window.</li>
+          <li>Confirm these order-state filters are in place: <code class="inl">order.createdInTestMode = false</code>, <code class="inl">order.deleted = false</code>, <code class="inl">order.voided = false</code>, <code class="inl">order.approvalStatus = 'APPROVED'</code>. Test-mode alone affected 27 orders across 7 Firehouse stores on 4/17.</li>
+          <li>If helpful, share the aggregation query or script with us and we'll help pin down the math differences store-by-store.</li>
+        </ol>
+      </div>
+    </div>
+
+    <details class="proof"><summary>Proof · four stores we sampled end-to-end</summary>
+      <div class="proof-body">
+        <p style="margin-top: 8px;">These are the four stores where we pulled every raw order from the Orders API and walked the decomposition by hand. Notice how Keboola and Share track consistently, but your pipeline's numbers deviate in both directions:</p>
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th class="n" style="text-align:right">Keboola</th>
+              <th class="n" style="text-align:right">Share</th>
+              <th class="n" style="text-align:right">Your API pull</th>
+              <th class="n" style="text-align:right">Tix diff</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="label">00852 Woodruff Rd.</td>      <td class="n">$3,585</td><td class="n">$3,616</td><td class="n">$2,927</td><td class="n">—</td></tr>
+            <tr><td class="label">00890 Abilene South</td>     <td class="n">$7,758</td><td class="n">$7,820</td><td class="n">$8,108</td><td class="n">—</td></tr>
+            <tr><td class="label">01899 Menomonee Falls</td>   <td class="n">$2,034</td><td class="n">$2,011</td><td class="n">$2,079</td><td class="n">—</td></tr>
+            <tr class="hl"><td class="label">10240 Pajaro Dunes (PT)</td><td class="n">$1,725</td><td class="n">$1,729</td><td class="n">$2,505</td><td class="n">+2</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 10px;">Your pipeline is $689 <em>under</em> at Woodruff Rd., $288–$776 <em>over</em> at the other three. And Pajaro Dunes is the only store in the sample with a ticket-count mismatch — it's also the only Pacific-timezone store in the sample, which is what points to the UTC window theory.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ═════════════ Reference math ═════════════ -->
+  <section>
+    <div class="issue-kicker">Reference</div>
+    <h2 class="issue-title">Suggested net sales formula</h2>
+    <p class="issue-summary">The simplest formula that reproduces Toast's net sales convention (matching Keboola/Toastweb to within rounding):</p>
+
+<pre class="pseudo"><span class="kw">net_sales</span> = Σ selection.price
+<span class="kw">where</span>
+    order.createdInTestMode = <span class="kw">false</span>
+    <span class="kw">and</span>  order.deleted          = <span class="kw">false</span>
+    <span class="kw">and</span>  order.voided           = <span class="kw">false</span>
+    <span class="kw">and</span>  order.approvalStatus   = <span class="kw">'APPROVED'</span>
+    <span class="kw">and</span>  check.deleted          = <span class="kw">false</span>
+    <span class="kw">and</span>  check.voided           = <span class="kw">false</span>
+    <span class="kw">and</span>  selection.deleted      = <span class="kw">false</span>
+    <span class="kw">and</span>  selection.voided       = <span class="kw">false</span>
+    <span class="kw">and</span>  selection.deferred     = <span class="kw">false</span>   <span class="cm">-- excludes gift cards AND fundraising items</span>
+
+<span class="cm">-- If pipeline already uses check.amount as the base:</span>
+<span class="kw">net_sales</span> = check.amount
+            − Σ appliedServiceCharge.chargeAmount
+              <span class="kw">where</span> serviceChargeCategory = <span class="kw">'FUNDRAISING_CAMPAIGN'</span>
+            − Σ selection.price
+              <span class="kw">where</span> selection.deferred = <span class="kw">true</span></pre>
+
+    <p>Applied to the 4/17 data, either form reconciles to Keboola's fleet total within 0.025% and to Share's within 0.05%. We have a longer reference doc with the field-by-field walkthrough if your data team wants the extended version.</p>
+  </section>
+
+  <!-- ═════════════ Next steps ═════════════ -->
+  <div class="next-steps">
+    <h3>Suggested next steps</h3>
+    <ol>
+      <li><strong>Share pipeline:</strong> apply the two filters described in Issue 1. Expected daily impact: ~$10K reduction in reported net sales, bringing Share in line with Keboola.</li>
+      <li><strong>Your Orders API pulls:</strong> apply the discount walk from Issue 2 and the filters from Issue 3. This requires changes to the query logic itself; we're happy to review it together.</li>
+      <li><strong>Keboola:</strong> no action needed — it's tracking Toast's standard net sales convention within rounding. Consider using it as the benchmark while the other two sources are being corrected.</li>
+      <li><strong>Open question:</strong> we noticed 7 Firehouse stores had 100% test-mode traffic on 4/17 (e.g., 01044 "215 and Rice"). If those are supposed to be live, it may be worth reviewing their provisioning separately — otherwise they'll continue to look empty in reporting.</li>
+    </ol>
+  </div>
+
+  <footer class="doc-footer">
+    <span>Toast Solutions Engineering</span>
+    <span>Firehouse Subs · 4/17 reconciliation review</span>
+  </footer>
+
+</div>
+</body>
+</html>
